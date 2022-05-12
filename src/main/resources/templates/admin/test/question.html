@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
+    <link href="../../bootstrap/css/styles.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="sb-nav-fixed">
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+    <a class="navbar-brand ps-3" href="/">Навигация</a>
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+
+    <!-- Navbar-->
+    <ul class="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav">
+        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+            <div class="sb-sidenav-menu">
+                <div class="nav">
+                    <div class="sb-sidenav-menu-heading">Студенты</div>
+                    <a class="nav-link" href="/students">
+                        <div class="sb-nav-link-icon"><i class="fas fa-user-graduate"></i></div>
+                        Все студенты
+                    </a>
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                        <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                        Группы
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="/groups">Создать группу</a>
+                        </nav>
+                        <nav class="sb-sidenav-menu-nested nav" th:each="g : ${groups}">
+                            <a class="nav-link" th:href="'/groups/' + ${g.id}" th:if="${g.getGroupStudent()}"><span th:text="${g.getGroupStudent()}"></span></a>
+                        </nav>
+                    </div>
+                    <div class="sb-sidenav-menu-heading">Тесты</div>
+                    <a class="nav-link" href="/discipline">
+                        <div class="sb-nav-link-icon"><i class="fas fa-bookmark"></i></div>
+                        Дисциплины
+                    </a>
+                    <a class="nav-link" href="/testConfig">
+                        <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
+                        Создать тест
+                    </a>
+                    <div class="sb-sidenav-menu-heading">Результаты</div>
+                    <a class="nav-link" href="/students/results">
+                        <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                        Итоги тестирования
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <h1 class="mt-4" th:text="${theme.name}"></h1>
+                <ol class="breadcrumb mb-4">
+                    <li class="breadcrumb-item"><a href="/discipline" style="color: black">Дисциплины</a></li>
+                    <li class="breadcrumb-item"><a th:href="'/discipline/'+ ${theme.discipline.id} + '/themes'" th:text="${theme.discipline.name}" style="color: black"></a></li>
+                    <li class="breadcrumb-item active" th:text="${theme.name}"></li>
+                </ol>
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal" style="margin-bottom: 20px">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <br>
+                <!-- Modal -->
+                <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Новый вопрос</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <strong>Внимание!</strong> Удостовертесь в правильности введеных данных, <strong>особенно правильного ответа.</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"  aria-label="Close"></button>
+                                </div>
+                                <br>
+                                <form method="post" th:action="@{/themes/questionsCreate}" th:object="${question}">
+                                    <input type="hidden" name="theme" th:value="${theme.id}">
+                                    <div class="form-group">
+                                        <label for="FormControlTextarea1">Текст вопроса</label>
+                                        <textarea class="form-control" id="FormControlTextarea1" th:field="*{textQuestion}" rows="3"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FormControlTextarea2">Вариант ответа 1</label>
+                                        <textarea class="form-control" id="FormControlTextarea2" th:field="*{var1}" rows="2"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FormControlTextarea3">Вариант ответа 2</label>
+                                        <textarea class="form-control" id="FormControlTextarea3" th:field="*{var2}" rows="2"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FormControlTextarea4">Вариант ответа 3</label>
+                                        <textarea class="form-control" id="FormControlTextarea4" th:field="*{var3}" rows="2"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FormControlTextarea5">Вариант ответа 4</label>
+                                        <textarea class="form-control" id="FormControlTextarea5" th:field="*{var4}" rows="2"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="FormControlTextarea"><strong>Правильный ответ</strong></label>
+                                        <textarea class="form-control" id="FormControlTextarea" th:field="*{correctAnswer}" rows="2"></textarea>
+                                    </div>
+                                    <br>
+                                    <button type="submit" class="btn btn-primary">Добавить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-table me-1"></i>
+                        Вопросы
+                    </div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Просмотр</th>
+                                <th>Верный ответ</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>Название</th>
+                                <th>Варианты ответа</th>
+                                <th>Верный ответ</th>
+                                <th></th>
+                            </tr>
+                            </tfoot>
+                            <tbody>
+                            <tr th:each="q : ${questions}">
+                                <td th:text="${q.textQuestion}"></td>
+                                <td>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item" th:text="${q.var1}"></li>
+                                        <li class="list-group-item" th:text="${q.var2}"></li>
+                                        <li class="list-group-item" th:text="${q.var3}"></li>
+                                        <li class="list-group-item" th:text="${q.var4}"></li>
+                                    </ul>
+                                </td>
+                                <td th:text="${q.correctAnswer}"></td>
+                                <td>
+                                    <form th:action="@{/themes/questions/{id} (id = ${q.id})}" th:method="delete" style="display:inline" >
+                                        <button class="btn btn-primary mb-2" type="submit"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="py-4 bg-light mt-auto">
+            <div class="container-fluid px-4">
+                <div class="d-flex align-items-center justify-content-between small">
+                    <div class="text-muted">Артем Сороков &copy; Тестирование студентов 2021</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="../../bootstrap/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+<script src="/../bootstrap/js/datatables-simple-demo.js"></script>
+</body>
+</html>
