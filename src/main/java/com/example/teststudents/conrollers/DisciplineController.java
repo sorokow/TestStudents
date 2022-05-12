@@ -16,6 +16,7 @@ import java.util.List;
 @RequestMapping("/discipline")
 public class DisciplineController {
     private final GroupService groupService;
+
     private final DisciplineService disciplineService;
     private final ThemeService themeService;
     private final QuestionService questionService;
